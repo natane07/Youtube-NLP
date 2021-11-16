@@ -20,7 +20,8 @@ class Utils():
             moderationStatus="published",
             order="time",
             textFormat="plainText",
-            videoId=id_video
+            videoId=id_video,
+            maxResults=50
         )
         response = request.execute()
 
