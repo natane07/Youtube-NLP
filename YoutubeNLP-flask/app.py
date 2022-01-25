@@ -33,6 +33,24 @@ def execute_script_data():
         headers={"Content-disposition":"attachment; filename=./data/comments-youtube.csv"}
     )
 
+@app.route('/train_model')
+def execute_train():
+    # Procesing data
+    p = Processing()
+    df_transform = p.apply()
+
+    # Train and Save model
+    ml = Ml(df_transform)
+    acc = ml.train()
+
+    return jsonify({
+        "acc": acc.tolist(),
+    })
+
+@app.route('/predict',  methods = ['POST'])
+def train():
+    json = request.json
+
 
 if __name__ == '__main__':
     app.run()
