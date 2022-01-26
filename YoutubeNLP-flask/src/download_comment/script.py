@@ -17,7 +17,7 @@ class script():
 
     @staticmethod
     def get_comment(id_video):
-        response = utils.Utils.call_api_youtube_comments(id_video)
+        response = utils.Utils.call_api_youtube_comments(id_video, 200)
         data = utils.Utils.parse_request_youtube(response)
         print(len(data))
         data = [[x[0], script.clean_data(x[1]), x[2]] for x in data]

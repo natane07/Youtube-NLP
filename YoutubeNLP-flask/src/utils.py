@@ -6,7 +6,7 @@ import re
 class Utils():
 
     @staticmethod
-    def call_api_youtube_comments(id_video):
+    def call_api_youtube_comments(id_video, maxResults=65):
         os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
         api_service_name = "youtube"
@@ -22,7 +22,7 @@ class Utils():
             order="time",
             textFormat="plainText",
             videoId=id_video,
-            maxResults=65
+            maxResults=maxResults
         )
         response = request.execute()
 
