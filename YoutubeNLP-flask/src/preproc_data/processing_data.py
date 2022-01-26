@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 import numpy as np
+from nltk import word_tokenize
+from nltk.corpus import stopwords
 
 class Processing():
 
@@ -23,19 +25,29 @@ class Processing():
         return result
 
     @staticmethod
-    def clean_data(df):
+    def clean_data(df, delete_comment_empty=True):
         # Suppression des sauts de ligne et les valeurs http
         df['comment'] = df['comment'].apply(lambda x: re.sub(r'http\S+', '', str(x)))
-        df['comment'] = df['comment'].apply(lambda x: str(x).replace('\n', ' ').replace('\r', ''))
+        df['comment'] = df['comment'].apply(lambda x: str(x).replace('\n', ' ').replace('\r', '').replace("’", ' ').replace("'", ' '))
 
         # Suppression des "
         df['comment'] = df['comment'].replace('"', '')
 
-        # Suppression des commentaires vides
-        df['comment'] = df['comment'].replace('', np.nan)
-        df.dropna(subset=['comment'], inplace=True)
-        return df
+        # Suppression des stop word
+        def delete_stop_word(all_stopwords, word):
+            text_tokens = word_tokenize(word)
+            tokens_without_sw = [word for word in text_tokens if not word in all_stopwords]
+            return (" ").join(tokens_without_sw)
 
+        all_stopwords = stopwords.words('french')
+        df['comment'] = df['comment'].apply(lambda x: delete_stop_word(all_stopwords, str(x)))
+
+        # Suppression des commentaires vides
+        if delete_comment_empty:
+            df['comment'] = df['comment'].replace('', np.nan)
+            df.dropna(subset=['comment'], inplace=True)
+
+        return df
 
 if __name__ == '__main__':
     # TEST

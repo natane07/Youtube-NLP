@@ -62,7 +62,8 @@ def predict():
     df_comments = script.script.get_comment(id_video)
 
     # Processing des données
-    df_process = Processing.clean_data(df_comments)
+    df_transform = df_comments.copy()
+    df_process = Processing.clean_data(df_transform, delete_comment_empty=False)
     df_process = df_process.reset_index()
 
     # Predict label comments
@@ -71,6 +72,8 @@ def predict():
     predict_label = [(int(label)) for label in predict_label]
 
     # Prepare Json response
+    print(len(df_comments["comment"]), len(df_process["comment"]))
+    df_process["comment"] = df_comments["comment"]
     df_process["label"] = predict_label
     df_process = df_process[["comment", "label"]]
     nb_pertinent = int(df_process["label"].sum())
