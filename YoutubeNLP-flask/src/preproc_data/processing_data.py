@@ -14,7 +14,7 @@ class Processing():
 
     def apply(self):
         df = self.concat_df_data_with_data_aug()
-        df = self.clean_data(df)
+        df = Processing.clean_data(df)
         df = df.reset_index()
         return df
 
@@ -22,8 +22,8 @@ class Processing():
         result = pd.concat([self.df_data_comments_youtube, self.df_data_aug_comments_youtube], ignore_index=True, sort=False)
         return result
 
-
-    def clean_data(self, df):
+    @staticmethod
+    def clean_data(df):
         # Suppression des sauts de ligne et les valeurs http
         df['comment'] = df['comment'].apply(lambda x: re.sub(r'http\S+', '', str(x)))
         df['comment'] = df['comment'].apply(lambda x: str(x).replace('\n', ' ').replace('\r', ''))

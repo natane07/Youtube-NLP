@@ -45,10 +45,10 @@ class Utils():
 
     @staticmethod
     def whrite_csv(data):
-        if os.stat("../data/comments-youtube.csv").st_size == 0:
+        if os.stat("./data/comments-youtube.csv").st_size == 0:
             header = ["video_Id", "comment", "label"]
             data.insert(0, header)
-        with open('../data/comments-youtube.csv', 'a+', newline='') as file:
+        with open('./data/comments-youtube.csv', 'a+', newline='') as file:
             writer = csv.writer(file, delimiter=';')
             writer.writerows(data)
 

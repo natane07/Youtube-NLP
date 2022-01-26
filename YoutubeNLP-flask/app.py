@@ -24,7 +24,7 @@ def execute_script_data():
 
     script.script.get_comments(ids_videos)
 
-    with open("data/comments-youtube.csv") as fp:
+    with open("./data/comments-youtube.csv") as fp:
         csv = fp.read()
 
     return Response(
@@ -47,10 +47,47 @@ def execute_train():
         "acc": acc.tolist(),
     })
 
+"""
+Exemple de JSON pour la requete POST 
+{
+    "id_video": "g0Y98HpdIS4"
+}
+"""
 @app.route('/predict',  methods = ['POST'])
-def train():
+def predict():
     json = request.json
+    id_video = json["id_video"]
 
+    # Récuperation des commentaires youtubes
+    df_comments = script.script.get_comment(id_video)
+
+    # Processing des données
+    df_process = Processing.clean_data(df_comments)
+    df_process = df_process.reset_index()
+
+    # Predict label comments
+    df_feature = df_process['comment'].values
+    predict_label = Ml.predict(df_feature)
+    predict_label = [(int(label)) for label in predict_label]
+
+    # Prepare Json response
+    df_process["label"] = predict_label
+    df_process = df_process[["comment", "label"]]
+    nb_pertinent = int(df_process["label"].sum())
+    nb_comments = int(df_process["label"].count())
+    json_dict = {
+        "comments": [],
+        "nb_pertinent": nb_pertinent,
+        "nb_non_pertinent": nb_comments - nb_pertinent
+    }
+    for index, row in df_process.iterrows():
+        value = {
+            "comment": row['comment'],
+            "label": row['label'],
+            "label_name": "Non pertinent" if row['label'] == 0 else "Pertinent"
+        }
+        json_dict["comments"].append(value)
+    return jsonify(json_dict)
 
 if __name__ == '__main__':
     app.run()
