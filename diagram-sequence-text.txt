@@ -1,0 +1,57 @@
+title Diagrams de sequence
+
+#User
+#API_comments
+#YT_API
+#LabelisationExcel
+#SCRIPT_data_aug
+
+#API_train
+#SCRIPT_pre_processing
+#API_predict
+
+#API_pre_processing_and_ML
+
+
+actor User
+User->API_comments: Envoie des id videos YT dans un JSON
+note right of API_comments: Parsing
+API_comments->YT_API: Call API Youtube pour récupérer les commentaires des vidéos
+YT_API->API_comments: Renvoie les data JSON
+note left of API_comments: Clean de la donnée
+note left of API_comments: Sauvegarde dans un csv
+API_comments->User: Envoi du CSV non labélisé
+
+User->LabelisationExcel : Labelisation du fichier 
+LabelisationExcel->User : Retour du fichier labelisé
+
+User->SCRIPT_data_aug: Lancement du script pour faire de la data augmentation
+note left of SCRIPT_data_aug: Traduction Francais->Anglais->Francais
+note left of SCRIPT_data_aug: Sauvegarde des données en CSV
+
+User->API_train: Call de l'API Train
+API_train->SCRIPT_pre_processing: Pre-processing des données
+note left of SCRIPT_pre_processing: Recupération des donnée labelisé + data aug
+note left of SCRIPT_pre_processing: Nettoyage de la donnée
+SCRIPT_pre_processing->API_train: Entrainement du modèle ML
+note left of API_train: Transformation du texte en vecteur + TF-IDF
+note left of API_train: Sauvegarde des modèles CountVectorizer + TF-IDF
+note left of API_train: Naive Bayes fit
+note left of API_train: cross_validation
+note left of API_train: Sauvegarde du modèle entrainé
+API_train->User: Envoie des metrics du modèle au format JSON
+
+User->API_predict: Envoie de l'id d'une video à l'API
+note left of API_predict: Parse du json avec l'id video
+API_predict->YT_API: Récupération des commentaires youtubes de la vidéo
+YT_API->API_predict: Renvoie des données au format JSON
+note left of API_predict: Parse du JSON
+API_predict->SCRIPT_pre_processing: Pre-processing des commentaires
+note left of SCRIPT_pre_processing: Clean de la donnnée
+SCRIPT_pre_processing->API_predict: Prediction de chaque feature
+note left of API_predict: Chargement des modèles CountVectorizer + TF-IDF
+note left of API_predict: Transformation du texte en vecteur + TF-IDF
+note left of API_predict: Chargement du modèle Naive Bayes
+note left of API_predict: Prediction de chaque feature
+note left of API_predict: Préparation du JSON avec chaque feature
+API_predict->User: Renvoie du JSON avec chaque commentaire et son label + stat
